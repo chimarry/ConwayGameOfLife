@@ -21,12 +21,23 @@
     <ClCompile Include="Demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConwayExecutor.cpp">
+    <ClCompile Include="ConwayGameOfLifeExecutor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ConwayExecutor.h">
+    <None Include="ConwayGameOfLife.cl">
+      <Filter>OpenCL Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ConwayGameOfLifeExecutor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\TemplateGraph-master\TemplateGraph-master\Template Graph\IMatrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\TemplateGraph-master\TemplateGraph-master\Template Graph\Matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

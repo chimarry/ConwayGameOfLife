@@ -2,8 +2,9 @@
 #include <iostream>
 #include <CL\cl.hpp>
 #include <vector>
+#include "ConwayGameOfLifeExecutor.h"
 
 int main() {
-	std::cout << "Hello world";
-	std::cout << std::endl;
+	ConwayGameOfLifeExecutor executor;
+	executor.simulate();
 }
