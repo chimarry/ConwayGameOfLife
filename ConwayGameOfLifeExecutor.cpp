@@ -20,20 +20,92 @@ void ConwayGameOfLifeExecutor::simulate() {
 	initialMatrix.randomInitialize();
 
 	ConwayMatrix newPopulation = ConwayMatrix(rowCount, columnCount);
+	int* initialVector = initialMatrix.toIntVector();
+
+#pragma region OpenCL
+	cl_int error;
+	cl_platform_id platformId;
+	cl_device_id deviceId;
+	cl_context context;
+	cl_command_queue commandQueue;
+	cl_program kernelProgram;
+	cl_kernel kernel;
+	cl_uint platformsCount, devicesCount;
+	cl_mem inputScene;
+	cl_mem outputScene;
+	char deviceName[256];
+
+	size_t gameSceneSize = sizeof(int) * rowCount * columnCount;
+	error = clGetPlatformIDs(1, &platformId, &platformsCount);
+	error = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_CPU, 1, &deviceId, &devicesCount);
+	error = clGetDeviceInfo(deviceId, CL_DEVICE_NAME, 256, deviceName, NULL);
+	cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, (cl_context_properties)platformId,0 };
+
+	context = clCreateContext(properties, 1, &deviceId, NULL, NULL, &error);
+	commandQueue = clCreateCommandQueue(context, deviceId, 0, &error);
+	std::cout << "Created CL command queue for device " << deviceName << std::endl;
+
+	char* kernelSource = readKernelSource("ConwayGameOfLife.cl");
+	kernelProgram = clCreateProgramWithSource(context, 1, (const char**)&kernelSource, 0, &error);
+	std::cout << "Loaded kernel source with status" << error << std::endl;
+
+	error = clBuildProgram(kernelProgram, 0, NULL, NULL, NULL, 0);
+	if (error != CL_SUCCESS)
+		std::cout << "Error " << error << " while building kernel" << std::endl;
+
+	kernel = clCreateKernel(kernelProgram, "simulateGameOfLife", &error);
+
+	inputScene = clCreateBuffer(context, CL_MEM_READ_WRITE, gameSceneSize, NULL, &error);
+	outputScene = clCreateBuffer(context, CL_MEM_READ_WRITE, gameSceneSize, NULL, &error);
+
+	if (error != CL_SUCCESS)
+		std::cout << "Error " << error << " while allocating buffers" << std::endl;
+
+	error = clEnqueueWriteBuffer(commandQueue, inputScene, CL_TRUE, 0, gameSceneSize, initialVector, 0, NULL, NULL);
+	if (error != CL_SUCCESS)
+		std::cout << "Error " << error << " while writing to GPU" << std::endl;
+
+	size_t localWorkSize[2], globalWorkSize[2];
+	localWorkSize[0] = localWorkSize[1] = 10;
+	globalWorkSize[0] = rowCount;
+	globalWorkSize[1] = columnCount;
 
 	for (int i = 0; i < 100; ++i)
 	{
+		if (i != 0)
+			inputScene = outputScene;
+		clSetKernelArg(kernel, 0, sizeof(cl_mem), &inputScene);
+		clSetKernelArg(kernel, 1, sizeof(cl_mem), &outputScene);
+		clSetKernelArg(kernel, 2, sizeof(int), (void*)&rowCount);
+		clSetKernelArg(kernel, 3, sizeof(int), (void*)&columnCount);
+		error = clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL, globalWorkSize,
+			localWorkSize, 0, NULL, NULL);
+		if (error != CL_SUCCESS)
+			std::cout << "Error " << error << " while running kernel" << std::endl;
+
+		clFinish(commandQueue);
+
+		error = clEnqueueReadBuffer(commandQueue, outputScene, CL_TRUE, 0, gameSceneSize, initialVector, 0, NULL, NULL);
+		if (error != CL_SUCCESS)
+			std::cout << "Error " << error << " while reading result" << std::endl;
+		clFinish(commandQueue);
+
+		initialMatrix.fromIntVector(initialVector);
 		std::cout << initialMatrix;
-		nextState(initialMatrix, newPopulation, columnCount, rowCount);
-		initialMatrix = newPopulation;
 		std::cout << std::endl;
 	}
-	// alocirati memoriju host uredjaja
-	// konfigurisati opencl program
-	// pozvati opencl program
-	// obratiti rezultat
+	// release OpenCL resources
+	clReleaseMemObject(inputScene);
+	clReleaseMemObject(outputScene);
+	clReleaseProgram(kernelProgram);
+	clReleaseKernel(kernel);
+	clReleaseCommandQueue(commandQueue);
+	clReleaseContext(context);
 
-	// Deallocate memory
+	//release host memory
+	delete[](initialVector);
+	delete[](kernelSource);
+#pragma endregion
 }
 
 int ConwayGameOfLifeExecutor::sumNeighbours(const ConwayMatrix& matrix, int currentRow, int currentCol) {
@@ -68,4 +140,22 @@ void ConwayGameOfLifeExecutor::nextState(const ConwayMatrix& in_state, ConwayMat
 			liveNeigboursCount = sumNeighbours(in_state, i, j);
 			out_state[{i, j}] = (value == ConwayMatrix::Cell::ALIVE && liveNeigboursCount == 2 || liveNeigboursCount == 3) ? ConwayMatrix::ALIVE : ConwayMatrix::DEAD;
 		}
+}
+
+char* ConwayGameOfLifeExecutor::readKernelSource(const char* filename)
+{
+	char* kernelSource = nullptr;
+	long length;
+	FILE* f = fopen(filename, "r");
+	if (f)
+	{
+		fseek(f, 0, SEEK_END);
+		length = ftell(f);
+		fseek(f, 0, SEEK_SET);
+		kernelSource = (char*)calloc(length, sizeof(char));
+		if (kernelSource)
+			fread(kernelSource, 1, length, f);
+		fclose(f);
+	}
+	return kernelSource;
 }

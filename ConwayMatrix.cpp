@@ -64,7 +64,7 @@ const ConwayMatrix::Cell& ConwayMatrix::operator[](const Index& index) const noe
 void ConwayMatrix::fromIntVector(int* vector) {
 	for (int i = 0; i < n; ++i)
 		for (int j = 0; j < m; ++j)
-			mat[i][j] = static_cast<ConwayMatrix::Cell>(vector[i + j]);
+			mat[i][j] = static_cast<ConwayMatrix::Cell>(vector[i * m + j]);
 }
 
 void ConwayMatrix::randomInitialize() {
@@ -78,7 +78,7 @@ int* ConwayMatrix::toIntVector() {
 	int* vector = new int[m * n];
 	for (int i = 0; i < n; ++i)
 		for (int j = 0; j < m; ++j)
-			vector[i + j * m] = mat[i][j];
+			vector[i * m + j] = mat[i][j];
 	return vector;
 }
 

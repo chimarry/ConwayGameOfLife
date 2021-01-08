@@ -15,7 +15,6 @@ public:
 	void simulate();
 private:
 	int sumNeighbours(const ConwayMatrix& matrix, int currentRow, int currentCol);
-	void nextState(const ConwayMatrix& in_state, ConwayMatrix& out_state,int colCount,int rowCount);
+	void nextState(const ConwayMatrix& in_state, ConwayMatrix& out_state, int colCount, int rowCount);
+	char* readKernelSource(const char* filename);
 };
-
-
