@@ -26,8 +26,8 @@ public:
 	void randomInitialize();
 	void fromIntVector(int* originalVector);
 	int* toIntVector();
-
-
+	void fromImage(const char* filename);
+	void writeToImage(const char* filename);
 	friend std::ostream& operator<<(std::ostream& s, const ConwayMatrix& matrix)
 	{
 		system("cls");

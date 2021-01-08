@@ -1,5 +1,5 @@
 #pragma once
-
+#pragma warning (disable : 4996)
 #include "ConwayMatrix.h"
 #include<exception>
 #include<stdexcept>
@@ -70,8 +70,10 @@ void ConwayMatrix::fromIntVector(int* vector) {
 void ConwayMatrix::randomInitialize() {
 	for (int i = 0; i < n; ++i)
 		for (int j = 0; j < m; ++j)
-			mat[i][j] = (rand() % 100) > 50 ? ConwayMatrix::Cell::DEAD : ConwayMatrix::Cell::ALIVE;
-
+			if (i == 0 || i == n - 1 || m == 0 || j == m - 1)
+				mat[i][j] = ConwayMatrix::Cell::DEAD;
+			else
+				mat[i][j] = (rand() % 100) > 50 ? ConwayMatrix::Cell::DEAD : ConwayMatrix::Cell::ALIVE;
 }
 
 int* ConwayMatrix::toIntVector() {
@@ -80,6 +82,34 @@ int* ConwayMatrix::toIntVector() {
 		for (int j = 0; j < m; ++j)
 			vector[i * m + j] = mat[i][j];
 	return vector;
+}
+
+void ConwayMatrix::fromImage(const char* filename)
+{
+	FILE* fp = fopen(filename, "rb");
+	int w, h;
+	if (!fscanf(fp, "P5\n%d %d\n255\n", &w, &h))
+	{
+		throw "error";
+	}
+	unsigned char* image = new unsigned char[(size_t)n * m];
+	fread(image, sizeof(unsigned char), (size_t)n * (size_t)m, fp);
+	fclose(fp);
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < m; ++j)
+			mat[i][j] = image[i * m + j] == 255 ? ConwayMatrix::ALIVE : ConwayMatrix::DEAD;
+}
+
+void ConwayMatrix::writeToImage(const char* filename)
+{
+	FILE* fp = fopen(filename, "wb");
+	fprintf(fp, "P5\n%d %d\n255\n", n, m);
+	int* intVector = toIntVector();
+	unsigned char* charVector = new unsigned char[n * m];
+	for (int i = 0; i < n * m; ++i)
+		charVector[i] = intVector[i] == 0 ? 0 : 255;
+	fwrite(charVector, sizeof(unsigned char), (size_t)n * (size_t)m, fp);
+	fclose(fp);
 }
 
 void ConwayMatrix::copy(const ConwayMatrix& matrix)

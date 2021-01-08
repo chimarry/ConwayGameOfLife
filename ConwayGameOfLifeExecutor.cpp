@@ -20,9 +20,25 @@ void ConwayGameOfLifeExecutor::simulate() {
 	int rowCount = 20;
 	ConwayMatrix initialMatrix = ConwayMatrix(rowCount, columnCount);
 	initialMatrix.randomInitialize();
-
+	//initialMatrix.fromImage("Input.pgm");
 	ConwayMatrix newPopulation = ConwayMatrix(rowCount, columnCount);
 	int* initialVector = initialMatrix.toIntVector();
+
+	/*int columnCount = 20;
+		int rowCount = 20;
+		ConwayMatrix initialMatrix = ConwayMatrix(rowCount, columnCount);
+		initialMatrix.fromImage("Input.pgm");
+
+		ConwayMatrix newPopulation = ConwayMatrix(rowCount, columnCount);
+
+		for (int i = 0; i < 100; ++i)
+		{
+			std::cout << initialMatrix;
+			nextState(initialMatrix, newPopulation, columnCount, rowCount);
+			initialMatrix = newPopulation;
+			std::cout << std::endl;
+		}
+		return;*/
 
 #pragma region OpenCL
 	cl_int error;
@@ -61,33 +77,36 @@ void ConwayGameOfLifeExecutor::simulate() {
 	printIfError(error);
 
 	size_t localWorkSize[2], globalWorkSize[2];
-	localWorkSize[0] = localWorkSize[1] = 10;
+	localWorkSize[0] = localWorkSize[1] = 4;
 	globalWorkSize[0] = rowCount;
 	globalWorkSize[1] = columnCount;
 
-	for (int i = 0; i < 200; ++i)
+	for (int i = 0; i < 500; ++i)
 	{
-		if (i != 0)
+		if (i != 0) {
+			cl_mem tmp = inputScene;
 			inputScene = outputScene;
+			outputScene = tmp;
+		}
 		clSetKernelArg(kernel, 0, sizeof(cl_mem), &inputScene);
 		clSetKernelArg(kernel, 1, sizeof(cl_mem), &outputScene);
 		clSetKernelArg(kernel, 2, sizeof(int), (void*)&rowCount);
 		clSetKernelArg(kernel, 3, sizeof(int), (void*)&columnCount);
+
 		error = clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL, globalWorkSize,
 			localWorkSize, 0, NULL, NULL);
 		printIfError(error);
 
-		clFinish(commandQueue);
-
 		error = clEnqueueReadBuffer(commandQueue, outputScene, CL_TRUE, 0, gameSceneSize, initialVector, 0, NULL, NULL);
 		printIfError(error);
-
-		clFinish(commandQueue);
 
 		initialMatrix.fromIntVector(initialVector);
 		std::cout << initialMatrix;
 		std::cout << std::endl;
 	}
+	clFinish(commandQueue);
+	initialMatrix.writeToImage("prvaSlika.pgm");
+
 	// release OpenCL resources
 	clReleaseMemObject(inputScene);
 	clReleaseMemObject(outputScene);
