@@ -7,8 +7,8 @@
 ConwayMatrix::ConwayMatrix(int n, int mm) :n(n), m(mm ? mm : n), mat(new ConwayMatrix::Cell* [n])
 {
 	for (int i = 0; i < n; ++i) {
-		mat[i] = new Cell[m];
-		std::fill_n(mat[i], m, ConwayMatrix::DEAD);
+		mat[i] = new ConwayMatrix::Cell[m];
+		std::fill_n(mat[i], m, ConwayMatrix::Cell::DEAD);
 	}
 }
 
@@ -17,7 +17,7 @@ ConwayMatrix::ConwayMatrix(const ConwayMatrix& matrix)
 	copy(matrix);
 }
 
-ConwayMatrix::ConwayMatrix(ConwayMatrix&& matrix)
+ConwayMatrix::ConwayMatrix(ConwayMatrix&& matrix) noexcept
 {
 	move(std::move(matrix));
 }
@@ -31,7 +31,7 @@ ConwayMatrix& ConwayMatrix::operator=(const ConwayMatrix& matrix)
 	return *this;
 }
 
-ConwayMatrix& ConwayMatrix::operator=(ConwayMatrix&& matrix)
+ConwayMatrix& ConwayMatrix::operator=(ConwayMatrix&& matrix) noexcept
 {
 	if (this != &matrix) {
 		this->~ConwayMatrix();
@@ -70,7 +70,7 @@ void ConwayMatrix::fromIntVector(int* vector) {
 void ConwayMatrix::randomInitialize() {
 	for (int i = 0; i < n; ++i)
 		for (int j = 0; j < m; ++j)
-			mat[i][j] = (rand() % 100) > 50 ? ConwayMatrix::DEAD : ConwayMatrix::ALIVE;
+			mat[i][j] = (rand() % 100) > 50 ? ConwayMatrix::Cell::DEAD : ConwayMatrix::Cell::ALIVE;
 
 }
 

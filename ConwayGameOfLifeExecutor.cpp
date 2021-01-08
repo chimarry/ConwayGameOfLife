@@ -44,19 +44,21 @@ int ConwayGameOfLifeExecutor::sumNeighbours(const ConwayMatrix& matrix, int curr
 	top = currentRow - 1;
 	bottom = currentRow + 1;
 
-	total += (matrix[{top, left}] != 0);
-	total += (matrix[{top, currentCol}] != 0);
-	total += (matrix[{top, right}] != 0);
-	total += (matrix[{currentRow, left}] != 0);
-	total += (matrix[{currentRow, right}] != 0);
-	total += (matrix[{bottom, left}] != 0);
-	total += (matrix[{bottom, currentCol}] != 0);
-	total += (matrix[{bottom, right}] != 0);
+	total += (matrix[{top, left}] != ConwayMatrix::DEAD);
+	total += (matrix[{top, currentCol}] != ConwayMatrix::DEAD);
+	total += (matrix[{top, right}] != ConwayMatrix::DEAD);
+	total += (matrix[{currentRow, left}] != ConwayMatrix::DEAD);
+	total += (matrix[{currentRow, right}] != ConwayMatrix::DEAD);
+	total += (matrix[{bottom, left}] != ConwayMatrix::DEAD);
+	total += (matrix[{bottom, currentCol}] != ConwayMatrix::DEAD);
+	total += (matrix[{bottom, right}] != ConwayMatrix::DEAD);
 	return total;
 }
 
 void ConwayGameOfLifeExecutor::nextState(const ConwayMatrix& in_state, ConwayMatrix& out_state, int colCount, int rowCount) {
-	int value, liveNeigboursCount;
+	ConwayMatrix::Cell value;
+	int liveNeigboursCount;
+
 	for (int i = 0; i < rowCount; ++i)
 		for (int j = 0; j < colCount; ++j)
 		{
@@ -64,6 +66,6 @@ void ConwayGameOfLifeExecutor::nextState(const ConwayMatrix& in_state, ConwayMat
 				continue;
 			value = in_state[{i, j}];
 			liveNeigboursCount = sumNeighbours(in_state, i, j);
-			out_state[{i, j}] = ((value == 1 && liveNeigboursCount == 2) || liveNeigboursCount == 3) ? ConwayMatrix::ALIVE : ConwayMatrix::DEAD;//  (liveNeigboursCount == 3 || liveNeigboursCount == 2 && value != 0) ? 1 : 0;
+			out_state[{i, j}] = (value == ConwayMatrix::Cell::ALIVE && liveNeigboursCount == 2 || liveNeigboursCount == 3) ? ConwayMatrix::ALIVE : ConwayMatrix::DEAD;
 		}
 }

@@ -11,13 +11,13 @@ private:
 		int j;
 	};
 public:
-	enum Cell { DEAD, ALIVE };
+	enum  Cell { DEAD, ALIVE };
 	explicit ConwayMatrix(int, int = 0);
 	ConwayMatrix() = delete;
 	ConwayMatrix(const ConwayMatrix&);
-	ConwayMatrix(ConwayMatrix&&);
+	ConwayMatrix(ConwayMatrix&&) noexcept;
 	ConwayMatrix& operator=(const ConwayMatrix&);
-	ConwayMatrix& operator=(ConwayMatrix&&);
+	ConwayMatrix& operator=(ConwayMatrix&&) noexcept;
 	~ConwayMatrix();
 
 	Cell& operator[](const Index&) noexcept(false);
@@ -34,7 +34,7 @@ public:
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		for (int i = 0; i < matrix.n; ++i, s << std::endl)
 			for (int j = 0; j < matrix.m; ++j) {
-				int value = (matrix.mat[i][j] == DEAD) ? 7 : 254;
+				int value = (matrix.mat[i][j] == ConwayMatrix::Cell::DEAD) ? 7 : 254;
 				SetConsoleTextAttribute(hConsole, value);
 				s << "  ";
 				SetConsoleTextAttribute(hConsole, 7);
