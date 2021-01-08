@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "Matrix.h"
+#include "ConwayMatrix.h"
 
 class ConwayGameOfLifeExecutor
 {
@@ -14,8 +14,8 @@ public:
 
 	void simulate();
 private:
-	int sum_neighbours(const Matrix<int>& matrix, int currentRow, int currentCol);
-	void next_state(const Matrix<int>& in_state, Matrix<int>& out_state,int colCount,int rowCount);
+	int sumNeighbours(const ConwayMatrix& matrix, int currentRow, int currentCol);
+	void nextState(const ConwayMatrix& in_state, ConwayMatrix& out_state,int colCount,int rowCount);
 };
 
 

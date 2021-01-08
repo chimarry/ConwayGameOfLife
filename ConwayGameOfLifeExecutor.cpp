@@ -2,8 +2,7 @@
 #include "ConwayGameOfLifeExecutor.h"
 #include <vector>
 #include <CL/cl.hpp>
-#include "IMatrix.h"
-#include "Matrix.h"
+#include "ConwayMatrix.h"
 #include <iostream>
 
 ConwayGameOfLifeExecutor::ConwayGameOfLifeExecutor() {
@@ -17,15 +16,15 @@ void ConwayGameOfLifeExecutor::simulate() {
 	// Allocate host memory
 	int columnCount = 20;
 	int rowCount = 20;
-	Matrix<int> initialMatrix = Matrix<int>(rowCount, columnCount);
+	ConwayMatrix initialMatrix = ConwayMatrix(rowCount, columnCount);
 	initialMatrix.randomInitialize();
 
-	Matrix<int> newPopulation = Matrix<int>(rowCount, columnCount);
+	ConwayMatrix newPopulation = ConwayMatrix(rowCount, columnCount);
 
 	for (int i = 0; i < 100; ++i)
 	{
 		std::cout << initialMatrix;
-		next_state(initialMatrix, newPopulation, columnCount, rowCount);
+		nextState(initialMatrix, newPopulation, columnCount, rowCount);
 		initialMatrix = newPopulation;
 		std::cout << std::endl;
 	}
@@ -37,7 +36,7 @@ void ConwayGameOfLifeExecutor::simulate() {
 	// Deallocate memory
 }
 
-int ConwayGameOfLifeExecutor::sum_neighbours(const Matrix<int>& matrix, int currentRow, int currentCol) {
+int ConwayGameOfLifeExecutor::sumNeighbours(const ConwayMatrix& matrix, int currentRow, int currentCol) {
 	int total = 0;
 	int left, top, right, bottom;
 	left = currentCol - 1;
@@ -56,7 +55,7 @@ int ConwayGameOfLifeExecutor::sum_neighbours(const Matrix<int>& matrix, int curr
 	return total;
 }
 
-void ConwayGameOfLifeExecutor::next_state(const Matrix<int>& in_state, Matrix<int>& out_state, int colCount, int rowCount) {
+void ConwayGameOfLifeExecutor::nextState(const ConwayMatrix& in_state, ConwayMatrix& out_state, int colCount, int rowCount) {
 	int value, liveNeigboursCount;
 	for (int i = 0; i < rowCount; ++i)
 		for (int j = 0; j < colCount; ++j)
@@ -64,7 +63,7 @@ void ConwayGameOfLifeExecutor::next_state(const Matrix<int>& in_state, Matrix<in
 			if (j == 0 || j == colCount - 1 || i == 0 || i == rowCount - 1)
 				continue;
 			value = in_state[{i, j}];
-			liveNeigboursCount = sum_neighbours(in_state, i, j);
-			out_state[{i, j}] = ((value == 1 && liveNeigboursCount == 2) || liveNeigboursCount == 3) ? 1 : 0;//  (liveNeigboursCount == 3 || liveNeigboursCount == 2 && value != 0) ? 1 : 0;
+			liveNeigboursCount = sumNeighbours(in_state, i, j);
+			out_state[{i, j}] = ((value == 1 && liveNeigboursCount == 2) || liveNeigboursCount == 3) ? ConwayMatrix::ALIVE : ConwayMatrix::DEAD;//  (liveNeigboursCount == 3 || liveNeigboursCount == 2 && value != 0) ? 1 : 0;
 		}
 }

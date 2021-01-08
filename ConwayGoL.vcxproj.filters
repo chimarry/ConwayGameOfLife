@@ -24,6 +24,9 @@
     <ClCompile Include="ConwayGameOfLifeExecutor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ConwayMatrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ConwayGameOfLife.cl">
@@ -34,10 +37,7 @@
     <ClInclude Include="ConwayGameOfLifeExecutor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\TemplateGraph-master\TemplateGraph-master\Template Graph\IMatrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\TemplateGraph-master\TemplateGraph-master\Template Graph\Matrix.h">
+    <ClInclude Include="ConwayMatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

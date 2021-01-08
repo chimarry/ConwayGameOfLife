@@ -152,15 +152,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConwayGameOfLifeExecutor.cpp" />
+    <ClCompile Include="ConwayMatrix.cpp" />
     <ClCompile Include="Demo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ConwayGameOfLife.cl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\TemplateGraph-master\TemplateGraph-master\Template Graph\IMatrix.h" />
-    <ClInclude Include="..\..\..\TemplateGraph-master\TemplateGraph-master\Template Graph\Matrix.h" />
     <ClInclude Include="ConwayGameOfLifeExecutor.h" />
+    <ClInclude Include="ConwayMatrix.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
