@@ -88,53 +88,18 @@ void ConwayGameOfLifeExecutor::simulate() {
 
 int* ConwayGameOfLifeExecutor::addSubSegment(const ConwayMatrix& original, int* subSegmentData, int positionRow, int positionColumn, int rowCount, int columnCount)
 {
-	cl_int error;
-	cl_context context;
-	cl_command_queue commandQueue;
-	cl_program kernelProgram;
-	cl_kernel kernel;
-	cl_mem inputScene;
-	cl_mem subSegment;
-	OpenCLConfiguration::configure(context, commandQueue, kernelProgram, kernel, ADD_SUB_SEGMENT);
-
-	inputScene = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(int) * original.getSize(), NULL, &error);
-	subSegment = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(int) * (size_t)rowCount * columnCount, NULL, &error);
-	OpenCLConfiguration::printIfError(error);
-
-	int* originalData = original.toIntVector();
-	error = clEnqueueWriteBuffer(commandQueue, inputScene, CL_TRUE, 0, sizeof(int) * original.getSize(), originalData, 0, NULL, NULL);
-	error = clEnqueueWriteBuffer(commandQueue, subSegment, CL_TRUE, 0, sizeof(int) * (size_t)rowCount * columnCount, subSegmentData, 0, NULL, NULL);
-	OpenCLConfiguration::printIfError(error);
-
-	size_t localWorkSize[2], globalWorkSize[2];
-	localWorkSize[0] = localWorkSize[1] = 4;
-	globalWorkSize[0] = original.getSize() / original.getColumnCount();
-	globalWorkSize[1] = original.getColumnCount();
-
-	int originalColumnCount = original.getColumnCount();
-	clSetKernelArg(kernel, 0, sizeof(cl_mem), &inputScene);
-	clSetKernelArg(kernel, 1, sizeof(cl_mem), &subSegment);
-	clSetKernelArg(kernel, 2, sizeof(int), (void*)&originalColumnCount);
-	clSetKernelArg(kernel, 3, sizeof(int), (void*)&columnCount);
-	clSetKernelArg(kernel, 4, sizeof(int), (void*)&rowCount);
-	clSetKernelArg(kernel, 5, sizeof(int), (void*)&positionRow);
-	clSetKernelArg(kernel, 6, sizeof(int), (void*)&positionColumn);
-
-	error = clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
-	OpenCLConfiguration::printIfError(error);
-
-	int* result = new int[original.getSize()];
-
-	error = clEnqueueReadBuffer(commandQueue, inputScene, CL_TRUE, 0, sizeof(int) * original.getSize(), result, 0, NULL, NULL);
-	OpenCLConfiguration::printIfError(error);
-
-	clFinish(commandQueue);
-
-	OpenCLConfiguration::releaseMemory(inputScene, subSegment, kernelProgram, kernel, commandQueue, context);
-	return result;
+	return manipulateSubSegment(ADD_SUB_SEGMENT, original, subSegmentData, positionRow, positionColumn, rowCount, columnCount, original.getSize());
 }
 
 int* ConwayGameOfLifeExecutor::getSubSegment(const ConwayMatrix& original, int positionRow, int positionColumn, int rowCount, int columnCount)
+{
+	size_t subSegmentSize = (size_t)rowCount * columnCount;
+	size_t subSegmentSizeInBytes = sizeof(int) * subSegmentSize;
+	return manipulateSubSegment(GET_SUB_SEGMENT, original, new int[subSegmentSize], positionRow, positionColumn, rowCount, columnCount, subSegmentSize, true);
+}
+
+int* ConwayGameOfLifeExecutor::manipulateSubSegment(const char* kernelName, const ConwayMatrix& original, int* subSegmentData,
+	int positionRow, int positionColumn, int rowCount, int columnCount, int outputSize, bool getSubSegment)
 {
 	cl_int error;
 	cl_context context;
@@ -143,23 +108,29 @@ int* ConwayGameOfLifeExecutor::getSubSegment(const ConwayMatrix& original, int p
 	cl_kernel kernel;
 	cl_mem inputScene;
 	cl_mem subSegment;
-	OpenCLConfiguration::configure(context, commandQueue, kernelProgram, kernel, GET_SUB_SEGMENT);
+	OpenCLConfiguration::configure(context, commandQueue, kernelProgram, kernel, kernelName);
 
-	int* subSegmentData = new int[(size_t)rowCount * columnCount];
 
-	inputScene = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(int) * original.getSize(), NULL, &error);
-	subSegment = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(int) * (size_t)rowCount * columnCount, NULL, &error);
-	OpenCLConfiguration::printIfError(error);
-
-	int* originalData = original.toIntVector();
-	error = clEnqueueWriteBuffer(commandQueue, inputScene, CL_TRUE, 0, sizeof(int) * original.getSize(), originalData, 0, NULL, NULL);
-	error = clEnqueueWriteBuffer(commandQueue, subSegment, CL_TRUE, 0, sizeof(int) * (size_t)rowCount * columnCount, subSegmentData, 0, NULL, NULL);
-	OpenCLConfiguration::printIfError(error);
+	size_t subSegmentSize = (size_t)rowCount * columnCount;
+	size_t originalSize = original.getSize();
+	size_t originalSizeInBytes = sizeof(int) * originalSize;
+	size_t subSegmentSizeInBytes = sizeof(int) * subSegmentSize;
+	size_t outputSizeInBytes = outputSize * sizeof(int);
+	int* result = new int[outputSize];
 
 	size_t localWorkSize[2], globalWorkSize[2];
 	localWorkSize[0] = localWorkSize[1] = 4;
 	globalWorkSize[0] = original.getSize() / original.getColumnCount();
 	globalWorkSize[1] = original.getColumnCount();
+
+	inputScene = clCreateBuffer(context, CL_MEM_READ_WRITE, originalSizeInBytes, NULL, &error);
+	subSegment = clCreateBuffer(context, CL_MEM_READ_WRITE, subSegmentSizeInBytes, NULL, &error);
+	OpenCLConfiguration::printIfError(error);
+
+	int* originalData = original.toIntVector();
+	error = clEnqueueWriteBuffer(commandQueue, inputScene, CL_TRUE, 0, originalSizeInBytes, originalData, 0, NULL, NULL);
+	error = clEnqueueWriteBuffer(commandQueue, subSegment, CL_TRUE, 0, subSegmentSizeInBytes, subSegmentData, 0, NULL, NULL);
+	OpenCLConfiguration::printIfError(error);
 
 	int originalColumnCount = original.getColumnCount();
 	clSetKernelArg(kernel, 0, sizeof(cl_mem), &inputScene);
@@ -173,9 +144,10 @@ int* ConwayGameOfLifeExecutor::getSubSegment(const ConwayMatrix& original, int p
 	error = clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
 	OpenCLConfiguration::printIfError(error);
 
-	int* result = new int[(size_t)rowCount * columnCount];
-
-	error = clEnqueueReadBuffer(commandQueue, subSegment, CL_TRUE, 0, sizeof(int) * rowCount * columnCount, result, 0, NULL, NULL);
+	if (getSubSegment)
+		error = clEnqueueReadBuffer(commandQueue, subSegment, CL_TRUE, 0, outputSizeInBytes, result, 0, NULL, NULL);
+	else
+		error = clEnqueueReadBuffer(commandQueue, inputScene, CL_TRUE, 0, outputSizeInBytes, result, 0, NULL, NULL);
 	OpenCLConfiguration::printIfError(error);
 
 	clFinish(commandQueue);

@@ -1,6 +1,7 @@
 ﻿  ConwayGameOfLifeExecutor.cpp
 C:\Users\Marija\Desktop\Odabrana poglavlja iz operativnih sistema\Projekat 3\ConwayGoL\ConwayGameOfLifeExecutor.cpp(42,26): warning C4101: 'devicesCount': unreferenced local variable
 C:\Users\Marija\Desktop\Odabrana poglavlja iz operativnih sistema\Projekat 3\ConwayGoL\ConwayGameOfLifeExecutor.cpp(42,10): warning C4101: 'platformsCount': unreferenced local variable
-C:\Users\Marija\Desktop\Odabrana poglavlja iz operativnih sistema\Projekat 3\ConwayGoL\ConwayGameOfLifeExecutor.cpp(114,53): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Marija\Desktop\Odabrana poglavlja iz operativnih sistema\Projekat 3\ConwayGoL\ConwayGameOfLifeExecutor.cpp(164,53): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Marija\Desktop\Odabrana poglavlja iz operativnih sistema\Projekat 3\ConwayGoL\ConwayGameOfLifeExecutor.cpp(91,143): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Marija\Desktop\Odabrana poglavlja iz operativnih sistema\Projekat 3\ConwayGoL\ConwayGameOfLifeExecutor.cpp(148,154): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Marija\Desktop\Odabrana poglavlja iz operativnih sistema\Projekat 3\ConwayGoL\ConwayGameOfLifeExecutor.cpp(236,53): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   ConwayGoL.vcxproj -> C:\Users\Marija\Desktop\Odabrana poglavlja iz operativnih sistema\Projekat 3\ConwayGoL\x64\Debug\ConwayGoL.exe
