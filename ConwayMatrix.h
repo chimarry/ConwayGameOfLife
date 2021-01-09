@@ -25,12 +25,12 @@ public:
 
 	void randomInitialize();
 	void fromIntVector(int* originalVector);
-	int* toIntVector();
+	int* toIntVector() const;
 	void fromImage(const char* filename);
 	void writeToImage(const char* filename);
 	friend std::ostream& operator<<(std::ostream& s, const ConwayMatrix& matrix)
 	{
-		system("cls");
+		//system("cls");
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		for (int i = 0; i < matrix.n; ++i, s << std::endl)
 			for (int j = 0; j < matrix.m; ++j) {
@@ -41,6 +41,8 @@ public:
 			}
 		return s;
 	}
+	size_t getSize() const;
+	size_t getColumnCount() const;
 
 private:
 	int n;

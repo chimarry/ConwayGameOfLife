@@ -27,6 +27,9 @@
     <ClCompile Include="ConwayMatrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OpenCLConfiguration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ConwayGameOfLife.cl">
@@ -40,8 +43,8 @@
     <ClInclude Include="ConwayMatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OpenCLKernels.h">
-      <Filter>OpenCL Files</Filter>
+    <ClInclude Include="OpenCLConfiguration.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

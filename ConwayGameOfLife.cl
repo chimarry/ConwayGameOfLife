@@ -33,3 +33,22 @@ __kernel void simulateGameOfLife(__global int* originalScene, __global int* newS
 	value = (value == 1 && total == 2 || total == 3) ? 1 : 0;
 	newScene[row + col] = value;
 }
+
+__kernel void addSubSegment(__global int* original, __global int* subsegment, int cols, int width, int height, int positionX, int positionY)
+{
+	int x = get_global_id(0);
+	int y = get_global_id(1);
+	bool rowsOverlap = x >= positionX && x <(positionX + width);
+	bool colsOverlap = y >= positionY && y <(positionY + height);
+	if(rowsOverlap && colsOverlap)
+	  original[x * cols + y] = subsegment[(x - positionX) * width + (y - positionY)];
+}
+
+__kernel void getSubSegment(__global int* original, __global int* subsegment, int cols, int width, int height, int positionX, int positionY){
+	int x = get_global_id(0);
+	int y = get_global_id(1);
+	bool rowsOverlap = x >= positionX && x <(positionX + width);
+	bool colsOverlap = y >= positionY && y <(positionY + height);
+	if(rowsOverlap && colsOverlap)
+		subsegment[(x - positionX) * width + (y - positionY)] = original[x * cols + y];
+}

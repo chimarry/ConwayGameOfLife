@@ -16,9 +16,6 @@ public:
 
 	void simulate();
 private:
-	int sumNeighbours(const ConwayMatrix& matrix, int currentRow, int currentCol);
-	void nextState(const ConwayMatrix& in_state, ConwayMatrix& out_state, int colCount, int rowCount);
-	char* readKernelSource(const char* filename);
-	void printIfError(cl_int errorCode);
-	std::string translateOpenCLError(cl_int errorCode);
+	int* addSubSegment(const ConwayMatrix& initialMatrix, int* subsegment, int positionRow, int positionColumn, int rowCount, int columnCount);
+	int* getSubSegment(const ConwayMatrix& initialMatrix, int positionRow, int positionColumn, int rowCount, int columnCount);
 };

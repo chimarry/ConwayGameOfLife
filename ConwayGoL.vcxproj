@@ -154,6 +154,7 @@
     <ClCompile Include="ConwayGameOfLifeExecutor.cpp" />
     <ClCompile Include="ConwayMatrix.cpp" />
     <ClCompile Include="Demo.cpp" />
+    <ClCompile Include="OpenCLConfiguration.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ConwayGameOfLife.cl" />
@@ -161,7 +162,7 @@
   <ItemGroup>
     <ClInclude Include="ConwayGameOfLifeExecutor.h" />
     <ClInclude Include="ConwayMatrix.h" />
-    <ClInclude Include="OpenCLKernels.h" />
+    <ClInclude Include="OpenCLConfiguration.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -51,6 +51,11 @@ ConwayMatrix::~ConwayMatrix()
 	m = n = 0;
 }
 
+size_t ConwayMatrix::getSize() const
+{
+	return (size_t)n * m;
+}
+
 ConwayMatrix::Cell& ConwayMatrix::operator[](const Index& index) noexcept(false)
 {
 	return wrongLocation(index.i, index.j) ? throw(std::out_of_range("Wrong")) : mat[index.i][index.j];
@@ -61,13 +66,19 @@ const ConwayMatrix::Cell& ConwayMatrix::operator[](const Index& index) const noe
 	return wrongLocation(index.i, index.j) ? throw(std::out_of_range("Wrong")) : mat[index.i][index.j];
 }
 
-void ConwayMatrix::fromIntVector(int* vector) {
+size_t ConwayMatrix::getColumnCount() const {
+	return (size_t)m;
+}
+
+void ConwayMatrix::fromIntVector(int* vector)
+{
 	for (int i = 0; i < n; ++i)
 		for (int j = 0; j < m; ++j)
 			mat[i][j] = static_cast<ConwayMatrix::Cell>(vector[i * m + j]);
 }
 
-void ConwayMatrix::randomInitialize() {
+void ConwayMatrix::randomInitialize()
+{
 	for (int i = 0; i < n; ++i)
 		for (int j = 0; j < m; ++j)
 			if (i == 0 || i == n - 1 || m == 0 || j == m - 1)
@@ -76,8 +87,9 @@ void ConwayMatrix::randomInitialize() {
 				mat[i][j] = (rand() % 100) > 50 ? ConwayMatrix::Cell::DEAD : ConwayMatrix::Cell::ALIVE;
 }
 
-int* ConwayMatrix::toIntVector() {
-	int* vector = new int[m * n];
+int* ConwayMatrix::toIntVector() const
+{
+	int* vector = new int[getSize()];
 	for (int i = 0; i < n; ++i)
 		for (int j = 0; j < m; ++j)
 			vector[i * m + j] = mat[i][j];
